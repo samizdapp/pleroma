@@ -33,7 +33,7 @@ ARG DATA=/var/lib/pleroma
 
 RUN echo "http://nl.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories &&\
 	apk update &&\
-	apk add exiftool ffmpeg imagemagick libmagic ncurses postgresql-client bash inotify-tools &&\
+	apk add exiftool ffmpeg imagemagick libmagic ncurses postgresql-client bash inotify-tools jq &&\
 	mkdir -p ${HOME} &&\
 	# adduser --system --shell /bin/false --home ${HOME} pleroma &&\
 	mkdir -p ${DATA}/uploads &&\
