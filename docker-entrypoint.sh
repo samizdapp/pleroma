@@ -1,4 +1,5 @@
 #!/bin/ash
+HOME=/opt/pleroma
 
 set -e
 
@@ -10,5 +11,8 @@ done
 echo "-- Running migrations..."
 $HOME/bin/pleroma_ctl migrate
 
+$HOME/watch_hosts.sh & jobs
+
 echo "-- Starting!"
+sleep infinity
 exec $HOME/bin/pleroma start

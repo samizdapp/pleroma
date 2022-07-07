@@ -9,7 +9,7 @@ config :pleroma, :instance,
   email: System.get_env("ADMIN_EMAIL"),
   notify_email: System.get_env("NOTIFY_EMAIL"),
   limit: 5000,
-  registrations_open: false,
+  registrations_open: true,
   healthcheck: true
 
 config :pleroma, Pleroma.Repo,
