@@ -14,5 +14,5 @@ $HOME/bin/pleroma_ctl migrate
 $HOME/watch_hosts.sh & jobs
 
 echo "-- Starting!"
-sleep infinity
+# sleep infinity
 exec $HOME/bin/pleroma start
