@@ -1,5 +1,17 @@
 import Config
 
+config :pleroma, configurable_from_database: true
+
+config :pleroma, :frontends,
+  primary: %{
+    "name" => "soapbox-fe",
+    "ref" => "v1.0.0"
+  },
+  admin: %{
+    "name" => "admin",
+    "ref" => "develop"
+  }
+
 config :pleroma, Pleroma.Web.Endpoint,
   url: [host: System.get_env("DOMAIN", "localhost"), scheme: "https", port: 443],
   http: [ip: {0, 0, 0, 0}, port: 8009]

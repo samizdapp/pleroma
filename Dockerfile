@@ -33,7 +33,7 @@ ARG DATA=/var/lib/pleroma
 
 RUN echo "http://nl.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories &&\
 	apk update &&\
-	apk add exiftool ffmpeg imagemagick libmagic ncurses postgresql-client bash inotify-tools jq &&\
+	apk add exiftool ffmpeg imagemagick libmagic ncurses postgresql-client bash inotify-tools jq curl &&\
 	mkdir -p ${HOME} &&\
 	# adduser --system --shell /bin/false --home ${HOME} pleroma &&\
 	mkdir -p ${DATA}/uploads &&\
@@ -52,5 +52,9 @@ COPY ./docker-entrypoint.sh ${HOME}
 COPY ./watch_hosts.sh ${HOME}
 
 EXPOSE 4000
+
+RUN curl -L https://gitlab.com/soapbox-pub/soapbox-fe/-/jobs/artifacts/v2.0.0/download?job=build-production -o soapbox-fe.zip
+RUN mkdir -p /opt/pleroma/instance/soapbox-fe/v1.0.0
+RUN unzip soapbox-fe.zip -o -d /opt/pleroma/instance/soapbox-fe/v1.0.0
 
 ENTRYPOINT ["/opt/pleroma/docker-entrypoint.sh"]
