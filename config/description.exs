@@ -2044,6 +2044,28 @@ config :pleroma, :config_description, [
     group: :pleroma,
     key: Pleroma.Formatter,
     label: "Linkify",
+  },
+  %{
+    key: :fetch_initial_posts,
+    type: :group,
+    description: "Fetching initial posts settings",
+    children: [
+      %{
+        key: :enabled,
+        type: :boolean,
+        description: "Fetch posts when a new user is federated with"
+      },
+      %{
+        key: :pages,
+        type: :integer,
+        description: "The amount of pages to fetch",
+        suggestions: [5]
+      }
+    ]
+  },
+  %{
+    group: :auto_linker,
+    key: :opts,
     type: :group,
     description:
       "Configuration for Pleroma's link formatter which parses mentions, hashtags, and URLs.",

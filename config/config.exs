@@ -586,6 +586,21 @@ config :pleroma, Pleroma.Formatter,
   strip_prefix: false,
   extra: true,
   validate_tld: :no_scheme
+  
+config :pleroma, :fetch_initial_posts,
+  enabled: false,
+  pages: 5
+
+config :auto_linker,
+  opts: [
+    extra: true,
+    # TODO: Set to :no_scheme when it works properly
+    validate_tld: true,
+    class: false,
+    strip_prefix: false,
+    new_window: false,
+    rel: "ugc"
+  ]
 
 config :pleroma, :ldap,
   enabled: System.get_env("LDAP_ENABLED") == "true",
