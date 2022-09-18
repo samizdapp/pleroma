@@ -29,7 +29,15 @@ defmodule Pleroma.Web.MastodonAPI.SearchController do
   defdelegate open_api_operation(action), to: Pleroma.Web.ApiSpec.SearchOperation
 
   def account_search(%{assigns: %{user: user}} = conn, %{q: query} = params) do
-    accounts = User.search(query, search_options(params, user))
+    accounts =
+      if query === "" do
+        Logger.debug("get all users")
+        User.Query.build(%{local: true})
+        |> Repo.all()
+      else
+        Logger.debug("search term: #{query}")
+        User.search(query, search_options(params, user))
+      end
 
     conn
     |> put_view(AccountView)
