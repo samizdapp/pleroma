@@ -9,6 +9,7 @@ defmodule Pleroma.Web.ActivityPub.Relay do
   alias Pleroma.Web.ActivityPub.Visibility
   alias Pleroma.Web.CommonAPI
   require Logger
+  require URI
 
   @nickname "relay"
 
@@ -24,10 +25,45 @@ defmodule Pleroma.Web.ActivityPub.Relay do
          {:ok, %User{} = target_user} <- User.get_or_fetch_by_ap_id(target_instance),
          {:ok, _, _, activity} <- CommonAPI.follow(local_user, target_user) do
       Logger.info("relay: followed instance: #{target_instance}; id=#{activity.data["id"]}")
+
       {:ok, activity}
     else
       error -> format_error(error)
     end
+  end
+
+  def fetch_history(target_instance) do
+    pages = Pleroma.Config.get!([:fetch_initial_posts, :pages])
+
+    instance_users_uri_struct =
+      target_instance
+      |> URI.parse()
+      |> Map.put(:path, "/api/v1/accounts/search")
+      |> Map.put(:query, "q=")
+
+    instance_users_uri =
+      instance_users_uri_struct
+      |> URI.to_string()
+
+
+    with {:ok, response} <- Tesla.get(instance_users_uri),
+         {:ok, collection} <- Jason.decode(response.body) do
+            collection
+            |> Enum.map(fn user -> instance_users_uri_struct
+                                |> Map.put(:path, "/users/#{user["acct"]}/outbox")
+                                |> Map.put(:query, "page=true")
+                                |> URI.to_string() end)
+            |> Utils.fetch_ordered_collection(pages)
+            |> Enum.reverse()
+            |> Enum.each(&Pleroma.Web.Federator.incoming_ap_doc/1)
+          end
+
+    # Insert all the posts in reverse order, so they're in the right order on the timeline
+    user.source_data["outbox"]
+  end
+
+  def fetch_user_posts(user, target_instance) do
+
   end
 
   @spec unfollow(String.t(), map()) :: {:ok, Activity.t()} | {:error, any()}
