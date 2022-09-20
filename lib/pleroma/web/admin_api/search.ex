@@ -7,17 +7,24 @@ defmodule Pleroma.Web.AdminAPI.Search do
 
   alias Pleroma.Repo
   alias Pleroma.User
+  require Logger
 
   @page_size 50
 
   @spec user(map()) :: {:ok, [User.t()], pos_integer()}
   def user(params \\ %{}) do
+    Logger.debug("user search #{params.q} #{params}")
     query =
-      params
-      |> Map.drop([:page, :page_size])
-      |> Map.put(:invisible, false)
-      |> User.Query.build()
-      |> order_by(desc: :id)
+      if params.q === "" do
+        User.Query.build(%{local: true})
+      else
+        params
+        |> Map.drop([:page, :page_size])
+        |> Map.put(:invisible, false)
+        |> User.Query.build()
+        |> order_by(desc: :id)
+      end
+
 
     paginated_query =
       User.Query.paginate(query, params[:page] || 1, params[:page_size] || @page_size)

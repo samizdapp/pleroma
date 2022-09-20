@@ -149,6 +149,7 @@ defmodule Pleroma.User do
     field(:last_active_at, :naive_datetime)
     field(:disclose_client, :boolean, default: true)
     field(:pinned_objects, :map, default: %{})
+    field(:source_data, :map, default: %{})
 
     embeds_one(
       :notification_settings,
@@ -464,7 +465,8 @@ defmodule Pleroma.User do
         :actor_type,
         :also_known_as,
         :accepts_chat_messages,
-        :pinned_objects
+        :pinned_objects,
+        :source_data
       ]
     )
     |> cast(params, [:name], empty_values: [])
@@ -1192,12 +1194,15 @@ defmodule Pleroma.User do
 
   def get_or_fetch_by_nickname(nickname) do
     with %User{} = user <- get_by_nickname(nickname) do
+      Logger.debug("got user by nickname, no update #{user.nickname}")
       {:ok, user}
     else
       _e ->
         with [_nick, _domain] <- String.split(nickname, "@"),
              {:ok, user} <- fetch_by_nickname(nickname) do
+          Logger.debug("fetch user by nickname #{user.nickname}")
           if Pleroma.Config.get([:fetch_initial_posts, :enabled]) do
+            Logger.debug("fetch_initial_posts #{user.nickname}")
             fetch_initial_posts(user)
           end
 
@@ -1210,7 +1215,10 @@ defmodule Pleroma.User do
 
   @doc "Fetch some posts when the user has just been federated with"
   def fetch_initial_posts(user) do
+    # if user.nickname === "relay" do
+    Logger.debug("queue fetch_initial_posts #{user.nickname}")
     BackgroundWorker.enqueue("fetch_initial_posts", %{"user_id" => user.id})
+    # end
   end
 
   @spec get_followers_query(User.t(), pos_integer() | nil) :: Ecto.Query.t()
@@ -1802,16 +1810,12 @@ defmodule Pleroma.User do
   def perform(:fetch_initial_posts, %User{} = user) do
     pages = Pleroma.Config.get!([:fetch_initial_posts, :pages])
 
+    Logger.debug("perform fetch_initial_posts #{user.nickname}")
     # Insert all the posts in reverse order, so they're in the right order on the timeline
     user.source_data["outbox"]
     |> Utils.fetch_ordered_collection(pages)
     |> Enum.reverse()
     |> Enum.each(&Pleroma.Web.Federator.incoming_ap_doc/1)
-  end
-
-  def perform(:deactivate_async, user, status), do: deactivate(user, status)
-
-    maybe_delete_from_db(user)
   end
 
   def perform(:set_activation_async, user, status), do: set_activation(user, status)
@@ -1905,7 +1909,6 @@ defmodule Pleroma.User do
   def get_or_fetch_by_ap_id(ap_id) do
     cached_user = get_cached_by_ap_id(ap_id)
 
-<<<<<<< HEAD
     maybe_fetched_user = needs_update?(cached_user) && fetch_by_ap_id(ap_id)
 
     case {cached_user, maybe_fetched_user} do
@@ -1917,23 +1920,6 @@ defmodule Pleroma.User do
 
       _ ->
         {:error, :not_found}
-=======
-    if !is_nil(user) and !needs_update?(user) do
-      {:ok, user}
-    else
-      # Whether to fetch initial posts for the user (if it's a new user & the fetching is enabled)
-      should_fetch_initial = is_nil(user) and Pleroma.Config.get([:fetch_initial_posts, :enabled])
-
-      resp = fetch_by_ap_id(ap_id)
-
-      if should_fetch_initial do
-        with {:ok, %User{} = user} <- resp do
-          fetch_initial_posts(user)
-        end
-      end
-
-      resp
->>>>>>> parent of e87a32bcd (rip out fetch_initial_posts)
     end
   end
 

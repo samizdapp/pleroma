@@ -721,6 +721,7 @@ defmodule Pleroma.Web.Router do
       post("/inbox", ActivityPubController, :inbox)
     end
 
+    get("/outbox", ActivityPubController, :outbox)
     get("/following", ActivityPubController, :relay_following)
     get("/followers", ActivityPubController, :relay_followers)
   end

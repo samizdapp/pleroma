@@ -759,6 +759,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   If the amount of pages is higher than the collection has, it returns whatever was there.
   """
   def fetch_ordered_collection(from, pages_left, acc \\ []) do
+    Logger.debug("fetch_ordered_collection #{from}")
     with {:ok, response} <- Tesla.get(from),
          {:ok, collection} <- Jason.decode(response.body) do
       case collection["type"] do

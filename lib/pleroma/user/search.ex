@@ -7,6 +7,8 @@ defmodule Pleroma.User.Search do
   alias Pleroma.Pagination
   alias Pleroma.User
 
+  require Logger
+
   import Ecto.Query
 
   @limit 20

@@ -586,7 +586,6 @@ config :pleroma, Pleroma.Formatter,
   strip_prefix: false,
   extra: true,
   validate_tld: :no_scheme
-  
 config :pleroma, :fetch_initial_posts,
   enabled: false,
   pages: 5
