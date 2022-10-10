@@ -1471,8 +1471,8 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       inbox: data["inbox"],
       shared_inbox: shared_inbox,
       accepts_chat_messages: accepts_chat_messages,
-      pinned_objects: pinned_objects,
-      source_data: data
+      pinned_objects: pinned_objects
+      # source_data: data
     }
 
     # nickname can be nil because of virtual actors

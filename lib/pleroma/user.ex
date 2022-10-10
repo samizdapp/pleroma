@@ -149,7 +149,7 @@ defmodule Pleroma.User do
     field(:last_active_at, :naive_datetime)
     field(:disclose_client, :boolean, default: true)
     field(:pinned_objects, :map, default: %{})
-    field(:source_data, :map, default: %{})
+    # field(:source_data, :map, default: %{})
 
     embeds_one(
       :notification_settings,
@@ -465,8 +465,8 @@ defmodule Pleroma.User do
         :actor_type,
         :also_known_as,
         :accepts_chat_messages,
-        :pinned_objects,
-        :source_data
+        :pinned_objects
+        # :source_data
       ]
     )
     |> cast(params, [:name], empty_values: [])
@@ -1807,16 +1807,16 @@ defmodule Pleroma.User do
     Repo.delete(user)
   end
 
-  def perform(:fetch_initial_posts, %User{} = user) do
-    pages = Pleroma.Config.get!([:fetch_initial_posts, :pages])
+  # def perform(:fetch_initial_posts, %User{} = user) do
+  #   pages = Pleroma.Config.get!([:fetch_initial_posts, :pages])
 
-    Logger.debug("perform fetch_initial_posts #{user.nickname}")
-    # Insert all the posts in reverse order, so they're in the right order on the timeline
-    user.source_data["outbox"]
-    |> Utils.fetch_ordered_collection(pages)
-    |> Enum.reverse()
-    |> Enum.each(&Pleroma.Web.Federator.incoming_ap_doc/1)
-  end
+  #   Logger.debug("perform fetch_initial_posts #{user.nickname}")
+  #   # Insert all the posts in reverse order, so they're in the right order on the timeline
+  #   user.source_data["outbox"]
+  #   |> Utils.fetch_ordered_collection(pages)
+  #   |> Enum.reverse()
+  #   |> Enum.each(&Pleroma.Web.Federator.incoming_ap_doc/1)
+  # end
 
   def perform(:set_activation_async, user, status), do: set_activation(user, status)
 
